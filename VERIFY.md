@@ -220,8 +220,8 @@ The ⚙ gear opens a dedicated **settings page** (its own tab) with an explicit 
 
 | # | What to do | Pass criteria |
 |---|-----------|---------------|
-| 87 | Click the **FireShot style** preset button | The template field fills with `FireShot Capture {index} - {title} - [{host}]` (not yet saved until you Save). |
-| 88 | With the FireShot preset saved, capture a **single** page | The filename renders without a doubled space where `{index}` is empty (e.g. `FireShot Capture - <title> - [<host>].pdf`). |
+| 87 | Click the **Default style** preset button | The template field fills with `Capture {index} - {title} - [{host}]` (not yet saved until you Save). |
+| 88 | With the Default style preset saved, capture a **single** page | The filename renders without a doubled space where `{index}` is empty (e.g. `Capture - <title> - [<host>].pdf`). |
 | 89 | Set **Index zero-padding** to `3`, run **All tabs** with a template containing `{index}` (or none) | Multi-capture numbers are padded: `001`, `002`, … (and the auto `-N` suffix is padded too). |
 | 90 | Set padding to `0`, run All tabs | Numbers are **not padded** (`-1`, `-2`, …). |
 | 91 | Set **Filename length limit** to a small value (e.g. `20`) on a long-title template, capture | The saved filename is **capped** at that length; with the default `100`, long titles are trimmed to 100. |

@@ -32,7 +32,7 @@ tiling, no repeated viewport, and no flattened image — links and text are pres
 - **Workflow/config** (settings page) — numeric capture tuning (pre-capture delay, scroll
   speed, max scroll steps, **scroll-time cap**), **filename templates** with tokens
   (`{title} {host} {url} {date} {time} {year} {month} {day} {index}`) plus **one-click
-  presets** (incl. a FireShot-style name), **index zero-padding** and a **filename length
+  presets** (incl. a descriptive title/host/index style), **index zero-padding** and a **filename length
   limit**, **output subfolder**, **show file in folder after saving**, **all-tabs
   visible-only**, **history retention**, **close tab after save**, and a **frame audit**.
 - **Capture history** — every successful capture is recorded (title, site, date, filename)
@@ -71,7 +71,7 @@ apply (nothing is persisted until you do; **Cancel** or closing the tab discards
   capture, the folder once for all-tabs/batch), and an *output subfolder* under Downloads
   (e.g. `Captures`; empty = Downloads root; absolute paths and `..` are rejected).
 - **Filename** — the *template* (tokens like `{title} {host} {date} {index}`), one-click
-  *presets* (incl. FireShot-style), *index zero-padding* (default 3 → `001`), and a
+  *presets* (incl. a title/host/index style), *index zero-padding* (default 3 → `001`), and a
   *filename length limit* (default 100).
 - **Capture tuning** — *pre-capture delay*, *scroll speed*, *max scroll steps*, a
   *scroll-time cap* (seconds; 0 = off), and *all tabs captures visible part only*.
@@ -159,7 +159,7 @@ and no file is saved.
   live DOM, so it can only include what's actually in the DOM at print time. Sites that
   *unmount* off-screen items (windowing) or load content after our pre-scroll never have
   all items mounted at once, so parts of the feed can come out blank or missing. This is
-  the trade-off for a real text/vector PDF — image-stitching tools (e.g. FireShot) avoid it
+  the trade-off for a real text/vector PDF — image-stitching tools avoid it
   only by producing a flattened screenshot. Raising the **pre-capture delay** (⚙) helps when
   the cause is slow loading rather than windowing.
 - **All tabs** and **Batch** produce **one PDF per capture** — there's no merged-PDF output.
