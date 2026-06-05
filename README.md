@@ -8,6 +8,12 @@ part**, a single **picked element**, **all open tabs**, or a pasted **batch of U
 Unlike screenshot-stitching tools, it renders the real document once, so there's no
 tiling, no repeated viewport, and no flattened image — links and text are preserved.
 
+## Screenshots
+
+| Popup — capture modes | Settings page |
+|:---:|:---:|
+| <img src="screenshots/popup.jpg" alt="Extension popup with the five capture modes" width="320"> | <img src="screenshots/settings.jpg" alt="Settings page with output, filename, capture tuning, history, and after-capture options" width="420"> |
+
 ## Features
 
 - **True full-page capture** — the whole scrollable page, not just the viewport.
