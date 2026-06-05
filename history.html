@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Capture history — CDP Full-Page PDF</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 760px;
+        margin: 32px auto;
+        padding: 0 16px;
+        color: #202124;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+        flex: 1;
+      }
+      p.hint {
+        color: #5f6368;
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      button {
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background: #1a73e8;
+        color: #fff;
+      }
+      button.secondary {
+        background: #f1f3f4;
+        color: #3c4043;
+      }
+      button.secondary:hover {
+        background: #e2e5e9;
+      }
+      button.danger {
+        background: #c5221f;
+      }
+      button:disabled {
+        background: #e8eaed;
+        color: #9aa0a6;
+        cursor: default;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+        border-top: 1px solid #e8eaed;
+      }
+      li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 4px;
+        border-bottom: 1px solid #e8eaed;
+      }
+      .meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .title {
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title a {
+        color: #1a73e8;
+        text-decoration: none;
+      }
+      .title a:hover {
+        text-decoration: underline;
+      }
+      .sub {
+        font-size: 12px;
+        color: #5f6368;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+      }
+      .sub .file {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+      }
+      .actions {
+        flex: none;
+        display: flex;
+        gap: 6px;
+      }
+      .empty {
+        color: #5f6368;
+        font-size: 14px;
+        padding: 32px 4px;
+        text-align: center;
+      }
+      .missing {
+        font-size: 11px;
+        color: #b06000;
+        margin-left: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="head">
+      <h1>Capture history</h1>
+      <button id="clear" type="button" class="danger">Clear all</button>
+    </div>
+    <p class="hint">
+      Past captures (newest first). <strong>Open</strong> launches the saved PDF;
+      <strong>Show</strong> reveals it in your file manager. History stores only metadata —
+      the files live in your Downloads folder, so moving or deleting one there makes it
+      un-openable here.
+    </p>
+    <ul id="list"></ul>
+    <div id="empty" class="empty" hidden>No captures yet. Capture a page and it'll show up here.</div>
+    <script type="module" src="history.js"></script>
+  </body>
+</html>

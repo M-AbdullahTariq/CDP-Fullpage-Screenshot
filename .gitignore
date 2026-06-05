@@ -1,0 +1,21 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# Node (if tooling is added later)
+node_modules/
+dist/
+
+# Local notes / scratch
+PRD-*.md
+PLAN-*.md
+
+# Local AI tooling — not for upstream
+CLAUDE.md
+AGENTS.md
+.claude/
+.claudecode/
+.cursor/
+.cursorrules
+.aider*

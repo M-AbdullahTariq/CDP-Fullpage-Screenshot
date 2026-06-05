@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Settings — CDP Full-Page PDF</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 640px;
+        margin: 32px auto;
+        padding: 0 16px 48px;
+        color: #202124;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 4px;
+      }
+      p.hint {
+        color: #5f6368;
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .section {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #e8eaed;
+      }
+      .section h2 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 12px;
+      }
+      .field {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        line-height: 1.3;
+      }
+      .field label {
+        flex: 1;
+      }
+      .field .desc {
+        display: block;
+        font-size: 12px;
+        color: #5f6368;
+        margin-top: 2px;
+      }
+      .field input[type="number"] {
+        width: 90px;
+        flex: none;
+        text-align: right;
+        font-size: 14px;
+        padding: 6px 8px;
+        border: 1px solid #dadce0;
+        border-radius: 6px;
+      }
+      .field select {
+        flex: none;
+        font-size: 14px;
+        padding: 6px 8px;
+        border: 1px solid #dadce0;
+        border-radius: 6px;
+        background: #fff;
+      }
+      .field.check {
+        align-items: flex-start;
+      }
+      .field.check input {
+        margin-top: 2px;
+        cursor: pointer;
+      }
+      .field.check label {
+        cursor: pointer;
+      }
+      .field.text {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+      .field.text input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 14px;
+        padding: 8px 10px;
+        border: 1px solid #dadce0;
+        border-radius: 6px;
+      }
+      .tokens {
+        font-size: 12px;
+        color: #5f6368;
+        line-height: 1.5;
+      }
+      .presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .presets button {
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #f1f3f4;
+        color: #3c4043;
+      }
+      .presets button:hover {
+        background: #e2e5e9;
+      }
+      .actions {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        margin-top: 28px;
+        padding: 16px 0;
+        border-top: 1px solid #e8eaed;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      button {
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background: #1a73e8;
+        color: #fff;
+      }
+      button.secondary {
+        background: #f1f3f4;
+        color: #3c4043;
+      }
+      button.secondary:hover {
+        background: #e2e5e9;
+      }
+      #status {
+        margin-left: auto;
+        font-size: 13px;
+        word-break: break-word;
+      }
+      .ok { color: #137333; }
+      .err { color: #c5221f; }
+    </style>
+  </head>
+  <body>
+    <h1>Settings</h1>
+    <p class="hint">
+      Changes apply only when you click <strong>Save</strong>. Out-of-range numbers and
+      invalid folders are corrected on save. <strong>Cancel</strong> (or just closing this
+      tab) discards unsaved edits.
+    </p>
+
+    <div class="section">
+      <h2>Output</h2>
+      <div class="field check">
+        <input type="checkbox" id="showInFolderAfterSave" />
+        <label for="showInFolderAfterSave">
+          Show downloaded file in folder after saving
+          <span class="desc">Reveal the file (single capture) or the folder (all tabs / batch) in your file manager.</span>
+        </label>
+      </div>
+      <div class="field text">
+        <label for="outputSubfolder">
+          Output subfolder
+          <span class="desc">Saved under this folder inside Downloads (e.g. “Captures”). Empty = Downloads root; absolute paths and “..” are rejected.</span>
+        </label>
+        <input type="text" id="outputSubfolder" placeholder="Captures" />
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Filename</h2>
+      <div class="field text">
+        <label for="filenameTemplate">Filename template</label>
+        <input type="text" id="filenameTemplate" placeholder="fullpage-{date}" />
+        <div class="tokens">
+          Tokens: {title} {host} {url} {date} {time} {year} {month} {day} {index}
+        </div>
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="field">
+        <label for="indexPadZeros">
+          Index zero-padding
+          <span class="desc">Pad the {index} number (and the -N multi-capture suffix) to this width. 0 = no padding.</span>
+        </label>
+        <input type="number" id="indexPadZeros" min="0" max="10" step="1" />
+      </div>
+      <div class="field">
+        <label for="filenameMaxLen">
+          Filename length limit
+          <span class="desc">Maximum characters in the final filename.</span>
+        </label>
+        <input type="number" id="filenameMaxLen" min="10" max="255" step="1" />
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Capture tuning</h2>
+      <div class="field">
+        <label for="preCaptureDelayMs">
+          Pre-capture delay (ms)
+          <span class="desc">Wait after pre-load so cross-origin embeds finish painting. 0 = off.</span>
+        </label>
+        <input type="number" id="preCaptureDelayMs" min="0" step="50" />
+      </div>
+      <div class="field">
+        <label for="scrollSpeedMs">
+          Scroll speed (ms/step)
+          <span class="desc">Pause between auto-scroll steps — slower lets lazy content load.</span>
+        </label>
+        <input type="number" id="scrollSpeedMs" min="10" step="10" />
+      </div>
+      <div class="field">
+        <label for="maxScrollSteps">
+          Max scroll steps
+          <span class="desc">Safety cap on auto-scroll steps for infinite-scroll pages.</span>
+        </label>
+        <input type="number" id="maxScrollSteps" min="1" step="50" />
+      </div>
+      <div class="field">
+        <label for="maxScrollSeconds">
+          Limit scrolling time (s)
+          <span class="desc">Wall-clock cap on the pre-scroll, alongside max steps (whichever hits first). 0 = off.</span>
+        </label>
+        <input type="number" id="maxScrollSeconds" min="0" step="1" />
+      </div>
+      <div class="field check">
+        <input type="checkbox" id="allTabsVisibleOnly" />
+        <label for="allTabsVisibleOnly">
+          All tabs captures visible part only
+          <span class="desc">Grab each tab’s current viewport (one page each) instead of the entire page.</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>History</h2>
+      <div class="field">
+        <label for="historyRetentionDays">
+          Keep history for
+          <span class="desc">Entries older than this window are pruned automatically.</span>
+        </label>
+        <select id="historyRetentionDays">
+          <option value="7">Week</option>
+          <option value="30">30 days</option>
+          <option value="90">3 months</option>
+          <option value="180">6 months</option>
+          <option value="365">Year</option>
+          <option value="all">All (no expiry)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>After capture</h2>
+      <div class="field check">
+        <input type="checkbox" id="closeTabAfter" />
+        <label for="closeTabAfter">Close tab after save</label>
+      </div>
+      <div class="field check">
+        <input type="checkbox" id="frameAudit" />
+        <label for="frameAudit">Report iframes captured (frame audit)</label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="save" type="button">Save</button>
+      <button id="cancel" type="button" class="secondary">Cancel</button>
+      <span id="status"></span>
+    </div>
+
+    <script type="module" src="settings.js"></script>
+  </body>
+</html>

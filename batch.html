@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Batch capture — CDP Full-Page PDF</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 640px;
+        margin: 32px auto;
+        padding: 0 16px;
+        color: #202124;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      p.hint {
+        color: #5f6368;
+        font-size: 13px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 220px;
+        box-sizing: border-box;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 13px;
+        padding: 10px;
+        border: 1px solid #dadce0;
+        border-radius: 6px;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 12px;
+      }
+      button {
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background: #1a73e8;
+        color: #fff;
+      }
+      button:disabled {
+        background: #9ab;
+        cursor: default;
+      }
+      #stop {
+        background: #c5221f;
+      }
+      #stop[hidden] {
+        display: none;
+      }
+      #status {
+        margin-left: auto;
+        font-size: 13px;
+        word-break: break-word;
+      }
+      .ok { color: #137333; }
+      .err { color: #c5221f; }
+    </style>
+  </head>
+  <body>
+    <h1>Batch capture</h1>
+    <p class="hint">
+      One URL per line. Lines without a scheme are assumed <code>https://</code>. Blank lines and
+      <code>#</code> comments are ignored. Each URL is opened in a background tab, captured as a
+      PDF, then closed — one at a time.
+    </p>
+    <textarea id="urls" placeholder="https://example.com&#10;example.org/page&#10;# this is a comment"></textarea>
+    <div class="row">
+      <button id="run" type="button">Capture all</button>
+      <button id="stop" type="button" hidden>Stop</button>
+      <span id="status"></span>
+    </div>
+    <script type="module" src="batch.js"></script>
+  </body>
+</html>
