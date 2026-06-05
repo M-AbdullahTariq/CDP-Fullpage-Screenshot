@@ -1,12 +1,8 @@
 # CDP Full-Page PDF
 
-A Chrome extension (Manifest V3) that captures web pages as **PDFs** with **selectable
-text** and **clickable embedded links** — using the Chrome DevTools Protocol
-(`chrome.debugger` → `Page.printToPDF`). Capture the **entire page**, just the **visible
-part**, a single **picked element**, **all open tabs**, or a pasted **batch of URLs**.
+A Manifest V3 Chrome extension that saves web pages as PDFs you can actually select text in and click links from. It drives the Chrome DevTools Protocol (`chrome.debugger` → `Page.printToPDF`) instead of stitching screenshots, so the page is rendered once as a real document. No tiling, no repeated viewport, no flattened image.
 
-Unlike screenshot-stitching tools, it renders the real document once, so there's no
-tiling, no repeated viewport, and no flattened image — links and text are preserved.
+You can grab the entire scrollable page, just the visible part, a single element you point at, every open tab, or a list of URLs you paste in.
 
 ## Screenshots
 
@@ -16,80 +12,48 @@ tiling, no repeated viewport, and no flattened image — links and text are pres
 
 ## Features
 
-- **True full-page capture** — the whole scrollable page, not just the viewport.
-- **Selectable, searchable text** — real PDF text, not an image.
-- **Clickable links** — hyperlinks are preserved and point to their original URLs.
-- **Screen-faithful rendering** — screen media + backgrounds, so colors and layout
-  match what you see in the browser (not a stripped-down print stylesheet).
-- **Single tall page** — one continuous page sized to the full content, for a
-  screenshot-like feel. Falls back to paginated Letter pages when a page exceeds
-  Chrome's ~200 in single-page limit.
-- **Lazy-content pre-load** — auto-scrolls to trigger lazy-loaded images/sections
-  before capturing, then restores your scroll position.
-- **Cancelable** — the capture button becomes a **Stop** button while running; stopping
-  aborts immediately, saves nothing, detaches the debugger, and restores your scroll.
-- **Dedicated settings page** (⚙ → opens its own tab) with an explicit **Save** / **Cancel**
-  model — edit freely; nothing is persisted until you click Save, and out-of-range numbers
-  and invalid folders are corrected on save.
-- **Five capture modes** (popup menu) — **Entire page**, **Visible part** (current viewport
-  as one page), **Selection** (point-and-click element picker), **All tabs** (one PDF per
-  tab in the window), and **Batch** (paste a URL list, captured unattended one at a time).
-  Every mode produces a real selectable-text PDF.
-- **Workflow/config** (settings page) — numeric capture tuning (pre-capture delay, scroll
-  speed, max scroll steps, **scroll-time cap**), **filename templates** with tokens
-  (`{title} {host} {url} {date} {time} {year} {month} {day} {index}`) plus **one-click
-  presets** (incl. a descriptive title/host/index style), **index zero-padding** and a **filename length
-  limit**, **output subfolder**, **show file in folder after saving**, **all-tabs
-  visible-only**, **history retention**, **close tab after save**, and a **frame audit**.
-- **Capture history** — every successful capture is recorded (title, site, date, filename)
-  and listed on a history page with one-click **Open** / **Show**, plus **Clear all**.
-  Old entries are pruned automatically by your chosen **retention** window. Metadata only —
-  files stay in your Downloads folder.
+- **Real full-page capture.** The whole scrollable page, not just what fits on screen.
+- **Selectable, searchable text.** It's actual PDF text, not a picture of text.
+- **Links survive.** Hyperlinks stay clickable and point where they originally did.
+- **Looks like the screen, not a print stylesheet.** Capture uses screen media and keeps backgrounds, so colors and layout match the browser.
+- **One tall page when it can.** A single continuous page sized to the content, which feels like a screenshot. If the page is taller than Chrome's ~200 in single-page limit, it falls back to paginated Letter pages.
+- **Loads lazy content first.** It auto-scrolls to trigger lazy images and sections before capturing, then puts your scroll position back.
+- **You can stop it.** While a capture runs the button turns into Stop. Hit it and the capture aborts on the spot: nothing saved, debugger detached, scroll restored.
+- **A proper settings page** (the ⚙ gear opens it in its own tab) with an explicit Save / Cancel. Edit as much as you like; nothing sticks until you click Save, and out-of-range numbers or invalid folders get corrected at that point.
+- **Five capture modes** from the popup: Entire page, Visible part (the current viewport as one page), Selection (a point-and-click element picker), All tabs (one PDF per tab in the window), and Batch (paste a URL list and let it work through them one at a time). All of them produce a real selectable-text PDF.
+- **Plenty to tune** on the settings page: capture timing (pre-capture delay, scroll speed, max scroll steps, a scroll-time cap), filename templates with tokens (`{title} {host} {url} {date} {time} {year} {month} {day} {index}`) plus one-click presets, index zero-padding, a filename length limit, an output subfolder, reveal-in-folder after saving, an all-tabs visible-only toggle, history retention, close-tab-after-save, and a frame audit.
+- **Capture history.** Every successful capture is logged (title, site, date, filename) on a history page with one-click Open / Show and Clear all. Old entries get pruned automatically based on the retention window you pick. It only stores metadata; the files themselves stay in your Downloads folder.
 
 ## Install (unpacked)
 
 1. Open `chrome://extensions`.
-2. Enable **Developer mode** (top-right).
-3. Click **Load unpacked** and select this folder.
-4. The extension appears as **CDP Full-Page PDF**.
+2. Turn on **Developer mode** (top-right).
+3. Click **Load unpacked** and pick this folder.
+4. It shows up as **CDP Full-Page PDF**.
 
 ## Usage
 
-Click the extension's toolbar icon to open the **capture menu**, then choose a mode:
+Click the toolbar icon to open the capture menu and pick a mode:
 
-- **Entire page** — the full scrollable document as one tall PDF (paginates if taller than
-  Chrome's ~200 in single-page limit).
-- **Visible part** — just what's on screen right now, as a one-page PDF.
-- **Selection** — hover to highlight elements (devtools-style), click one to capture just
-  that element; Escape or right-click cancels.
-- **All tabs** — one PDF per capturable tab in the current window (internal pages skipped),
-  with live progress.
-- **Batch (URL list)…** — opens a page where you paste URLs; each is captured unattended in
-  its own background tab, one at a time.
+- **Entire page** — the full scrollable document as one tall PDF (it paginates if the page is taller than Chrome's ~200 in single-page limit).
+- **Visible part** — whatever's on screen right now, as a one-page PDF.
+- **Selection** — hover to highlight elements devtools-style, click one to capture just that element. Escape or right-click backs out.
+- **All tabs** — one PDF per capturable tab in the current window, skipping internal pages, with live progress.
+- **Batch (URL list)…** — opens a page where you paste URLs. Each one is captured in its own background tab, one at a time, no babysitting needed.
 
-While a capture runs, the menu becomes a red **Stop** button — stopping aborts immediately,
-saves nothing, detaches the debugger, reverts any DOM changes, and restores your scroll.
+While a capture is running the menu turns into a red **Stop** button. Stopping aborts right away: nothing is saved, the debugger detaches, any DOM changes are reverted, and your scroll position comes back.
 
-The **⚙ gear** opens the **settings page** in its own tab. Edit freely and click **Save** to
-apply (nothing is persisted until you do; **Cancel** or closing the tab discards). Options:
+The **⚙ gear** opens the settings page in its own tab. Edit freely, then click **Save** to apply. Nothing is written until you do, and Cancel (or just closing the tab) throws the edits away. What you can set:
 
-- **Output** — *show downloaded file in folder after saving* (reveals the file for a single
-  capture, the folder once for all-tabs/batch), and an *output subfolder* under Downloads
-  (e.g. `Captures`; empty = Downloads root; absolute paths and `..` are rejected).
-- **Filename** — the *template* (tokens like `{title} {host} {date} {index}`), one-click
-  *presets* (incl. a title/host/index style), *index zero-padding* (default 3 → `001`), and a
-  *filename length limit* (default 100).
-- **Capture tuning** — *pre-capture delay*, *scroll speed*, *max scroll steps*, a
-  *scroll-time cap* (seconds; 0 = off), and *all tabs captures visible part only*.
-- **History** — *retention* window (Week / 30 days / 3 months / 6 months / Year / All); older
-  entries are pruned automatically.
-- **After capture** — *close tab after save* and the *frame audit* toggle.
+- **Output** — reveal the downloaded file in its folder after saving (the file itself for a single capture, the folder once for all-tabs/batch), and an output subfolder under Downloads (e.g. `Captures`; leave it empty for the Downloads root; absolute paths and `..` are rejected).
+- **Filename** — the template (tokens like `{title} {host} {date} {index}`), one-click presets including a title/host/index style, index zero-padding (defaults to 3, so `001`), and a filename length limit (defaults to 100).
+- **Capture tuning** — pre-capture delay, scroll speed, max scroll steps, a scroll-time cap in seconds (0 turns it off), and an all-tabs-captures-visible-part-only toggle.
+- **History** — the retention window (Week / 30 days / 3 months / 6 months / Year / All). Anything older is pruned automatically.
+- **After capture** — close the tab after saving, and the frame-audit toggle.
 
-**📁 View capture history** lists past captures with one-click **Open** / **Show** and
-**Clear all**.
+The **📁 View capture history** link lists past captures with one-click Open / Show and Clear all.
 
-Internal pages (`chrome://`, `edge://`, `about:`, extension pages) cannot be captured and are
-rejected with a clear message.
+Internal pages (`chrome://`, `edge://`, `about:`, extension pages) can't be captured and are turned away with a clear message.
 
 ## How it works
 
@@ -106,13 +70,9 @@ popup ── CAPTURE_FULL_PAGE {mode} ─▶ service worker  (holds a Cancellati
                                           └─ History       → record {title, url, host, date, filename}
 ```
 
-A single-page capture (entire / visible / selection) is clamped to `pageRanges: "1"` so a
-sub-pixel print-layout overflow can't add a trailing blank page. `printToPDF` has no clip,
-so the **sub-region modes work by changing the DOM** — translate the viewport or picked
-element to the origin and hide everything else — rather than cropping; the page is restored
-exactly afterward. The **Stop** button sends `CANCEL_CAPTURE`, aborting the token: auto-scroll
-bails out, the debugger detaches early (interrupting `printToPDF`), DOM changes are reverted,
-and no file is saved.
+A single-page capture (entire, visible, or selection) is clamped to `pageRanges: "1"` so a sub-pixel print-layout overflow can't tack on a trailing blank page.
+
+`printToPDF` doesn't support a clip region, so the sub-region modes work by editing the DOM rather than cropping: translate the viewport or the picked element to the origin, hide everything else, capture, then restore the page exactly as it was. The Stop button sends `CANCEL_CAPTURE` and cancels the token. Auto-scroll bails out, the debugger detaches early (which interrupts `printToPDF`), DOM changes are reverted, and no file is written.
 
 ## Project structure
 
@@ -154,32 +114,19 @@ and no file is saved.
 
 ## Limitations
 
-- Very large pages download via a base64 `data:` URL; an extremely large PDF could hit
-  a data-URL size limit.
-- Same-origin iframes are pre-scrolled (injection runs in all reachable frames).
-  Cross-origin iframes can't be driven (browser security) — they still render into
-  the PDF if already loaded, but their lazy content and inner links aren't captured.
+A few things to know going in:
+
+- Very large pages download through a base64 `data:` URL, so an enormous PDF can run into a data-URL size limit.
+- Same-origin iframes get pre-scrolled (the injection runs in every reachable frame), but cross-origin iframes can't be driven — that's a browser security boundary. They'll still render into the PDF if they're already loaded, but their lazy content and inner links won't be captured.
 - Pages taller than Chrome's ~200 in single-page cap fall back to paginated output.
-- **Virtualized / infinite-scroll feeds** (e.g. Instagram post grids, long social
-  timelines) may capture incompletely. The capture is a single `Page.printToPDF` of the
-  live DOM, so it can only include what's actually in the DOM at print time. Sites that
-  *unmount* off-screen items (windowing) or load content after our pre-scroll never have
-  all items mounted at once, so parts of the feed can come out blank or missing. This is
-  the trade-off for a real text/vector PDF — image-stitching tools avoid it
-  only by producing a flattened screenshot. Raising the **pre-capture delay** (⚙) helps when
-  the cause is slow loading rather than windowing.
-- **All tabs** and **Batch** produce **one PDF per capture** — there's no merged-PDF output.
-- **History is metadata only.** It re-opens files via Chrome's own download list, so moving
-  or deleting a PDF in Downloads makes that entry show "file not found".
+- Virtualized and infinite-scroll feeds (Instagram grids, long social timelines, that sort of thing) can come out incomplete. The capture is a single `Page.printToPDF` of the live DOM, so it can only include what's in the DOM at print time. Sites that unmount off-screen items as you scroll, or that load content after the pre-scroll finishes, never have everything mounted at once, so parts of the feed can be blank or missing. That's the price of a real text/vector PDF; image-stitching tools dodge it by producing a flattened screenshot instead. Bumping up the pre-capture delay (⚙) helps if the cause is slow loading rather than windowing.
+- All tabs and Batch save one PDF per capture. There's no merged-PDF output.
+- History is metadata only. It re-opens files through Chrome's own download list, so if you move or delete a PDF in Downloads, that entry will read "file not found".
 
 ## Development
 
-- **No build step and no dependencies** — load the folder unpacked as-is.
-- Pure modules are exercised with Node during development (no browser needed):
-  `dimensionCalculator`, `settings` (clamp/merge + `validateSubfolder`), `urlList`,
-  `filenameTemplate` (render + `padIndex` + `buildOutputPath` + presets), and `history`
-  (shape/merge + `prune`). `node --check <file>` syntax-checks any module.
-- After editing, reload the extension from `chrome://extensions` (the **↻** button).
-- Toolbar/store icons live in `icons/`, referenced by `manifest.json`.
-- See the `PRD-*.md` and `PLAN-*.md` docs for requirements and build plans, and `VERIFY.md`
-  for the manual in-browser verification checklist (75 checks across all modes + config).
+- No build step and no dependencies — just load the folder unpacked.
+- The pure modules can be exercised with Node during development, no browser required: `dimensionCalculator`, `settings` (clamp/merge + `validateSubfolder`), `urlList`, `filenameTemplate` (render + `padIndex` + `buildOutputPath` + presets), and `history` (shape/merge + `prune`). `node --check <file>` will syntax-check any module.
+- After an edit, reload the extension from `chrome://extensions` with the **↻** button.
+- Toolbar and store icons live in `icons/` and are referenced from `manifest.json`.
+- `VERIFY.md` has the manual in-browser checklist — 75 checks across every mode and config option.
