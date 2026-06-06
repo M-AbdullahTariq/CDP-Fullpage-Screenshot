@@ -1,4 +1,4 @@
-# Manual Verification Checklist (Phases 1–9 + Settings page / output options)
+# Manual Verification Checklist (core extension + Multi-select / Region / Robust capture)
 
 The extension is fully wired and passes syntax + pure-module smoke-tests. The remaining
 verification needs a real browser (selectable text, embedded links, lazy images,
@@ -252,8 +252,107 @@ The ⚙ gear opens a dedicated **settings page** (its own tab) with an explicit 
 | 101 | Upgrade over an existing install (settings saved before this version) | Old settings **survive**; new fields get their defaults — no reset, no error on the settings page. |
 | 102 | Sweep all five modes, Stop, close-tab, frame audit, and history once | Everything from #1–#75 still behaves as before — the new options **add** without removing any behavior. |
 
+## Multi-select, Region & Robust strategy (issue #1)
+
+> The two new modes (**Multi-select**, **Region**) and the **Standard / Robust** strategy are
+> driven from the settings page's **Capture strategy** section. *Standard* is plain vector
+> `printToPDF`. *Robust* (the **default**, `captureStrategy:"robust"`) tries vector first for
+> the whole-page modes and, when a page can't be printed faithfully (virtualized feeds, heavy
+> fixed/sticky), falls back to a **screenshot** carrying an **invisible selectable-text layer +
+> clickable link annotations** — so the result still selects, searches, and links even though
+> it's an image. The result status reports which path ran.
+>
+> **Sub-region modes always rasterize under Robust.** Selection, Multi-select, and Region do
+> *not* try vector under Robust: `Page.printToPDF` sizes the page layout by paper width, so a
+> sub-region request reflows the whole responsive page to that narrower width and clips the
+> element. A screenshot of the element's real document rect is the only faithful result. Set
+> the strategy to **Standard** to force their (reflow-prone) vector path for the checks below.
+
+### Popup — new modes
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 103 | Open the popup | The menu lists **seven** modes: Entire page, Visible part, Selection, **Multi-select**, **Region**, All tabs, Batch — all enabled (no "soon" badge). |
+
+### Multi-select picker
+
+> Like the single picker, clicking onto the page closes the popup (normal Chrome behavior);
+> the capture still completes.
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 104 | Click **Multi-select**, hover the page | Elements highlight (blue) tracking the cursor; a badge reads "0 selected — …". |
+| 105 | Click several elements | Each gets a persistent **red** highlight and the badge count rises; clicking a selected element again **removes** it (highlight clears, count drops). |
+| 106 | Press **Enter** with ≥1 selected | Capture runs; afterward the page is **fully restored** (no hidden siblings, leftover highlights, or transform). |
+| 107 | Press **Esc** or **right-click** while picking | Picker cancels: no capture, page untouched. |
+| 108 | Press **Enter** with **zero** selected | No-op (treated as cancel) — nothing captured. |
+| 109 | On a `chrome://` page, click Multi-select | Rejected with the internal-page guard message. |
+
+### Multi-select output shapes (settings → Multi-select output)
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 110 | Output = **combined**, Standard. Pick 2–3 elements, Enter | **One** PDF: the union of the picks, sized to their bounding box, off-selection siblings hidden; text selectable, links clickable. |
+| 111 | Output = **one file per element**, Standard. Pick 3 elements in different parts of the page, Enter | **Three** separate PDFs, named in **document order** with `-1/-2/-3` (or `{index}`); each sized to its own element. |
+| 112 | Per-element with **index zero-padding 3** | Files numbered `-001/-002/-003`. |
+| 113 | Output = **one multi-page PDF**, Standard. Pick 3 elements, Enter | **One** PDF with **three pages**, one element per page in document order; each page's text is **selectable** and links clickable (true vector, not images). |
+| 114 | Open that multi-page PDF | Page count = number of picks; Ctrl+F finds text on **each** page. |
+
+### Robust strategy — vector vs raster fallback
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 115 | Strategy **Robust**, capture **Entire page** on a normal article | A **vector** PDF (selectable text + clickable links); status reports the vector path. Visually equivalent to Standard. |
+| 116 | Strategy **Robust**, capture **Entire** on an Instagram-style feed / virtualized timeline | Falls back to a **raster screenshot of the full feed** (more content than the vector path captures); status reports the raster fallback. |
+| 117 | Open the raster-fallback PDF | Drag-select / **Ctrl+F finds text** (invisible layer); clicking a link opens the original URL; the image matches the page. |
+| 118 | Strategy **Standard** on the same feed | (Regression) behaves as before — single `printToPDF`, possibly incomplete; **no** raster fallback. |
+| 118a | Strategy **Robust**, pick a small static element (a header/button) on a responsive page (Selection or Multi-select combined) | The element captures as a **raster** (status shows the "image — text still selectable" note) and is **not clipped** — it matches the on-screen element. Under Robust, sub-region modes always rasterize (see the section intro); switch to **Standard** if you specifically want to test the vector sub-region path. |
+
+### Region mode
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 119 | Click **Region**, drag a rectangle over part of the page | A dashed **live preview** rectangle follows the drag; release captures. |
+| 120 | Open the Region PDF (Standard) | Contains **exactly the drawn rectangle** — a large element straddling the edge does **not** expand the output; text inside is selectable. |
+| 121 | Region, then a tiny drag (< ~5px), or **Esc** / **right-click** | Cancels: no capture, page restored (cursor/selection reset). |
+| 122 | Region + strategy **Robust** on a region that won't print faithfully | Raster fallback **clipped to the drawn rect**, with selectable text + links. |
+| 123 | After any Region capture | Page fully restored (no leftover transform / scroll shift). |
+
+### Raster settings (used on a Robust fallback)
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 124 | Format **PNG**, trigger a fallback | Embedded image is PNG (lossless); the fallback PDF opens fine. |
+| 125 | Format **JPEG**, quality 90, trigger a fallback | Embedded image is JPEG; lowering quality (e.g. 30) yields a visibly smaller file. The **JPEG-quality field is disabled while format = PNG**. |
+| 126 | **Raster scale 2**, trigger a fallback | The fallback image is higher-resolution (sharper when zoomed) but prints at the **same physical size**; scale 1 is the baseline. |
+| 127 | Strategy **Robust**, output **multi-page**, pick 3 elements | **One** multi-page PDF with **one raster image per page** (selectable text + links via the invisible layer). |
+| 128 | (Resilience) a Standard multi-page run where vector merge can't parse a page | It **silently falls back** to a raster multi-page PDF rather than failing the capture. |
+
+### Settings — strategy & output fields
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 129 | Open the settings page → **Capture strategy** | Controls: Strategy (Standard/Robust), Multi-select output (combined/per-element/multi-page), Raster image format (PNG/JPEG), JPEG quality (1–100), Raster scale (1–3) — each pre-filled with the saved value. |
+| 130 | Switch format PNG ↔ JPEG | The **JPEG-quality field enables only for JPEG**, live (no Save needed). |
+| 131 | Set quality `999` / scale `9`, click **Save** | **Clamped on save** (quality → 100, scale → 3) and shown corrected; a hand-edited bad enum falls back to its default. |
+| 132 | Change strategy/output, **Save**, reopen the page | Persisted; **Cancel** (or closing the tab) discards edits. |
+
+### Migration / regression
+
+| # | What to do | Pass criteria |
+|---|-----------|---------------|
+| 133 | Upgrade from a build **before** issue #1 (no `captureStrategy` / `multiSelectOutput` / `raster*` keys saved) | Settings load with the new fields **defaulted** (strategy = **Robust**, output = combined, format = PNG, quality 90, scale 1); no reset, no error. Whole-page modes (Entire/Visible/All-tabs) are vector-first under Robust, so on normal pages they're visually equivalent to #1–#102; sub-region modes now rasterize (see #118a). A user who saved a strategy in a prior build keeps their saved value (no silent override). |
+
 ## Known limitations to watch for
 
+- **Sub-region modes can't be true vector.** `Page.printToPDF` couples the page's layout
+  width to the paper width, so requesting a sub-region (Selection / Multi-select / Region)
+  forces the whole responsive page to re-lay-out at that narrower width — the element reflows
+  and is clipped. There is no `printToPDF` clip rect. The faithful path is a screenshot of the
+  element's real document rect with an invisible selectable-text + link layer, which is why
+  the default is Robust and these modes always rasterize. Do **not** try to "fix" them back to
+  a vector path — the Standard (vector) path for sub-regions is known-lossy and kept only for
+  comparison. (Entire/Visible/All-tabs print at the full page width, so they stay vector-first.)
 - **Very large pages** are downloaded via a base64 `data:` URL; an extremely large PDF
   could hit a data-URL size limit. If a huge page fails to download, that's the likely cause.
 - **Cross-origin iframes** may not be pre-scrolled (injection runs in the top frame).
@@ -267,8 +366,12 @@ The ⚙ gear opens a dedicated **settings page** (its own tab) with an explicit 
 
 ## Result
 
-- [ ] All 102 checks pass → core + blank-page fix + Stop + 5 capture modes + tuning + templates
-  + close-tab + history + the Phase 9 cross-mode integration pass + the settings page and
+- [ ] Checks #1–#102 pass → core + blank-page fix + Stop + the original 5 capture modes +
+  tuning + templates + close-tab + history + cross-mode integration + the settings page and
   output/workflow options (show-in-folder, subfolder, presets/padding/length, all-tabs
   visible-only, scroll-time cap, history retention).
+- [ ] Checks #103–#133 pass → the **Multi-select** and **Region** modes, the three multi-select
+  output shapes (combined / per-element / multi-page), the **Standard / Robust** strategy and
+  its raster fallback (selectable text + clickable links on a screenshot), the raster settings
+  (format / quality / scale), and clean migration of pre-issue-#1 settings.
 - [ ] Note any failures here with the page URL and the popup/console message.

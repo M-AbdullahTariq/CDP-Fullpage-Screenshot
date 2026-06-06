@@ -196,6 +196,55 @@
     </div>
 
     <div class="section">
+      <h2>Capture strategy</h2>
+      <div class="field">
+        <label for="captureStrategy">
+          Strategy
+          <span class="desc">Standard renders a vector PDF via the browser’s print engine. Robust hardens the page first and, when it still can’t be printed faithfully (virtualized feeds, heavy fixed/sticky), falls back to a screenshot with an invisible selectable-text layer and clickable links.</span>
+        </label>
+        <select id="captureStrategy">
+          <option value="vector">Standard (vector)</option>
+          <option value="robust">Robust (vector, raster fallback)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="multiSelectOutput">
+          Multi-select output
+          <span class="desc">How Multi-select saves the picked elements: one combined file, one file per element, or one multi-page PDF.</span>
+        </label>
+        <select id="multiSelectOutput">
+          <option value="combined">One combined file</option>
+          <option value="per-element">One file per element</option>
+          <option value="multi-page">One multi-page PDF</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rasterFormat">
+          Raster image format
+          <span class="desc">Image encoding embedded in the PDF on a raster fallback. PNG is lossless; JPEG is smaller for photo-heavy pages.</span>
+        </label>
+        <select id="rasterFormat">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rasterJpegQuality">
+          JPEG quality
+          <span class="desc">1–100; higher is sharper and larger. Used only when the raster format is JPEG.</span>
+        </label>
+        <input type="number" id="rasterJpegQuality" min="1" max="100" step="1" />
+      </div>
+      <div class="field">
+        <label for="rasterScale">
+          Raster scale
+          <span class="desc">Resolution multiplier (1–3) for the raster fallback — sharper and larger at the same physical size.</span>
+        </label>
+        <input type="number" id="rasterScale" min="1" max="3" step="1" />
+      </div>
+    </div>
+
+    <div class="section">
       <h2>Capture tuning</h2>
       <div class="field">
         <label for="preCaptureDelayMs">

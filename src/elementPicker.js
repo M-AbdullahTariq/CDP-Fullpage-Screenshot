@@ -50,8 +50,13 @@ export function elementPickerInjected() {
       document.removeEventListener("contextmenu", ctx, true);
       overlay.remove();
       document.documentElement.style.cursor = prevCursor;
+      delete window.__cdpPickAbort;
       resolve(result);
     };
+
+    // Let the background dismiss the picker when the Stop button cancels the capture
+    // mid-pick (the picker otherwise blocks until the user clicks/Escapes).
+    window.__cdpPickAbort = () => cleanup({ picked: false });
 
     const click = (e) => {
       e.preventDefault();
@@ -82,12 +87,29 @@ export function elementPickerInjected() {
   });
 }
 
+/** Runs in the PAGE. Dismiss an open picker (Stop pressed mid-pick). */
+function abortPickInjected() {
+  if (typeof window.__cdpPickAbort === "function") window.__cdpPickAbort();
+}
+
 /**
- * Run the element picker in the tab; resolves when the user picks or cancels.
+ * Run the element picker in the tab; resolves when the user picks or cancels. If
+ * `signal` aborts (Stop) while the picker is open, the picker is dismissed and
+ * resolves as a cancel.
  * @param {number} tabId
+ * @param {AbortSignal} [signal]
  * @returns {Promise<{ picked: boolean }>}
  */
-export async function pickElement(tabId) {
+export async function pickElement(tabId, signal) {
+  const onAbort = () => {
+    chrome.scripting
+      .executeScript({ target: { tabId }, func: abortPickInjected })
+      .catch(() => {});
+  };
+  if (signal) {
+    if (signal.aborted) onAbort();
+    else signal.addEventListener("abort", onAbort);
+  }
   try {
     const [res] = await chrome.scripting.executeScript({
       target: { tabId },
@@ -96,5 +118,7 @@ export async function pickElement(tabId) {
     return res?.result ?? { picked: false };
   } catch {
     return { picked: false };
+  } finally {
+    signal?.removeEventListener("abort", onAbort);
   }
 }

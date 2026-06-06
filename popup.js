@@ -94,9 +94,11 @@ function startCapture(mode) {
     if (res?.ok && res.multi) {
       toIdle(multiSummary(res), res.failed ? "" : "ok");
     } else if (res?.ok) {
-      const base = res.paginated
-        ? `Saved: ${res.filename} (paginated — page too tall for one sheet)`
-        : `Saved: ${res.filename}`;
+      let base = `Saved: ${res.filename}`;
+      if (res.paginated) base += " (paginated — page too tall for one sheet)";
+      if (res.multiPage) base += " (multi-page)";
+      // Robust strategy fell back to a screenshot: text is an invisible-but-selectable layer.
+      if (res.fallback) base += " (image — text still selectable)";
       toIdle(base + auditText(res.audit), "ok");
     } else if (res?.cancelled) {
       toIdle("Cancelled.", "");

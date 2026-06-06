@@ -23,6 +23,11 @@ const els = {
   historyRetentionDays: document.getElementById("historyRetentionDays"),
   closeTabAfter: document.getElementById("closeTabAfter"),
   frameAudit: document.getElementById("frameAudit"),
+  captureStrategy: document.getElementById("captureStrategy"),
+  multiSelectOutput: document.getElementById("multiSelectOutput"),
+  rasterFormat: document.getElementById("rasterFormat"),
+  rasterJpegQuality: document.getElementById("rasterJpegQuality"),
+  rasterScale: document.getElementById("rasterScale"),
 };
 const presetsEl = document.getElementById("presets");
 const saveBtn = document.getElementById("save");
@@ -46,6 +51,17 @@ function fillForm(s) {
   els.historyRetentionDays.value = String(s.historyRetentionDays);
   els.closeTabAfter.checked = s.closeTabAfter;
   els.frameAudit.checked = s.frameAudit;
+  els.captureStrategy.value = s.captureStrategy;
+  els.multiSelectOutput.value = s.multiSelectOutput;
+  els.rasterFormat.value = s.rasterFormat;
+  els.rasterJpegQuality.value = s.rasterJpegQuality;
+  els.rasterScale.value = s.rasterScale;
+  syncRasterQualityEnabled();
+}
+
+/** JPEG quality only applies to JPEG output — disable it for PNG. */
+function syncRasterQualityEnabled() {
+  els.rasterJpegQuality.disabled = els.rasterFormat.value !== "jpeg";
 }
 
 /** Read the current form values into a plain settings patch. */
@@ -65,6 +81,11 @@ function readForm() {
     historyRetentionDays: hr === "all" ? "all" : Number(hr),
     closeTabAfter: els.closeTabAfter.checked,
     frameAudit: els.frameAudit.checked,
+    captureStrategy: els.captureStrategy.value,
+    multiSelectOutput: els.multiSelectOutput.value,
+    rasterFormat: els.rasterFormat.value,
+    rasterJpegQuality: Number(els.rasterJpegQuality.value),
+    rasterScale: Number(els.rasterScale.value),
   };
 }
 
@@ -86,6 +107,9 @@ for (const preset of PRESETS) {
   });
   presetsEl.appendChild(b);
 }
+
+// Keep the JPEG-quality field enabled state in sync as the user switches format.
+els.rasterFormat.addEventListener("change", syncRasterQualityEnabled);
 
 // --- Load current values (no persistence) -----------------------------------
 

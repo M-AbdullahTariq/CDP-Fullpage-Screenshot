@@ -34,6 +34,21 @@ export const DEFAULTS = Object.freeze({
   allTabsVisibleOnly: false,
   // Wall-clock cap (seconds) on the lazy-content pre-scroll; 0 = off.
   maxScrollSeconds: 0,
+  // Capture strategy: "vector" = plain printToPDF; "robust" = harden-page-then-vector,
+  // falling back to a raster screenshot (+invisible text +links) on unprintable pages.
+  // Default is "robust": sub-region modes (selection/multi-select/region) can't be sized
+  // faithfully by printToPDF (it lays the whole page out at the sub-region's width, so a
+  // responsive site reflows and the element is clipped), so they always rasterize — see
+  // background.maybeRasterFallback's forceRaster path.
+  captureStrategy: "robust",
+  // Multi-select mode output shape: one combined file / one file per element / one multi-page PDF.
+  multiSelectOutput: "combined",
+  // Raster fallback image encoding embedded in the PDF.
+  rasterFormat: "png",
+  // JPEG quality (1–100) for the raster fallback; only used when rasterFormat = "jpeg".
+  rasterJpegQuality: 90,
+  // Raster fallback resolution scale (1–3); higher = sharper/larger, same physical size.
+  rasterScale: 1,
 });
 
 // Validation bounds for the numeric fields.
@@ -44,10 +59,17 @@ const BOUNDS = {
   indexPadZeros: [0, 10],
   filenameMaxLen: [10, 255],
   maxScrollSeconds: [0, Infinity],
+  rasterJpegQuality: [1, 100],
+  rasterScale: [1, 3],
 };
 
 // Allowed history-retention windows (days). Anything else falls back to "all".
 const RETENTION_DAYS = [7, 30, 90, 180, 365];
+
+// Allowed values for the string-enum settings; anything else falls back to the default.
+const CAPTURE_STRATEGIES = ["vector", "robust"];
+const MULTI_SELECT_OUTPUTS = ["combined", "per-element", "multi-page"];
+const RASTER_FORMATS = ["png", "jpeg"];
 
 const STORAGE_KEY = "settings";
 
@@ -68,6 +90,11 @@ function mergeRetention(value) {
   if (value === "all") return "all";
   if (typeof value === "number" && RETENTION_DAYS.includes(value)) return value;
   return DEFAULTS.historyRetentionDays;
+}
+
+/** Return value if it's one of `allowed`, else `def`. */
+function mergeEnum(value, allowed, def) {
+  return allowed.includes(value) ? value : def;
 }
 
 /**
@@ -128,6 +155,11 @@ export function mergeSettings(stored) {
         ? s.allTabsVisibleOnly
         : DEFAULTS.allTabsVisibleOnly,
     maxScrollSeconds: clampNum(s.maxScrollSeconds, DEFAULTS.maxScrollSeconds, BOUNDS.maxScrollSeconds),
+    captureStrategy: mergeEnum(s.captureStrategy, CAPTURE_STRATEGIES, DEFAULTS.captureStrategy),
+    multiSelectOutput: mergeEnum(s.multiSelectOutput, MULTI_SELECT_OUTPUTS, DEFAULTS.multiSelectOutput),
+    rasterFormat: mergeEnum(s.rasterFormat, RASTER_FORMATS, DEFAULTS.rasterFormat),
+    rasterJpegQuality: clampInt(s.rasterJpegQuality, DEFAULTS.rasterJpegQuality, BOUNDS.rasterJpegQuality),
+    rasterScale: clampNum(s.rasterScale, DEFAULTS.rasterScale, BOUNDS.rasterScale),
   };
 }
 
